@@ -15,6 +15,13 @@ async function boot() {
 	
 	await channel.assertQueue(queue, { durable: true });		
 	
+	const consume = channel.consume(queue, async (message) => {
+		if (message !== null) {
+			console.log(`Message received: ${message.content.toString()}`);
+			channel.ack(message);				
+		}
+	});
+
 	const app = express();
 
 	app.get('/status', (_, res) => {
@@ -25,11 +32,6 @@ async function boot() {
 	
 	app.listen(PORT, async () => console.log(`Node server ready on ${PORT}`));
 
-	await channel.consume(queue, async (message) => {
-		if (message !== null) {
-			console.log(`Message received: ${message.content.toString()}`);
-			channel.ack(message);				
-		}
-	});
+	await consume;
 }
 boot();
