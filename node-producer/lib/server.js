@@ -1,3 +1,4 @@
+// @ts-check
 'use strict';
 
 const express = require('express');
@@ -14,12 +15,17 @@ const exchange = 'test_exchange';
 const route = 'test_route';
 
 app.get('/produce', async ({ query }, res) => {	
-	if (!query.message) {
+	const { message } = query;
+
+	if (!message) {
 		res.json({ success: false, message: 'message is required.' });
 		return;
-	}
+	}	
 
-	const { message } = query;
+	if (typeof message !== "string") {
+		res.json({ success: false, message: 'message must be a String.' });
+		return;
+	}
 	
 	const connection = await amqplib.connect(amqp_url, "heartbeat=60");
 
