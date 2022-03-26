@@ -33,7 +33,6 @@ app.get('/produce', async ({ query }, res) => {
 	await channel.assertExchange(exchange, 'direct', { durable: true });
 	await channel.assertQueue(queue, { durable: true });
 	await channel.bindQueue(queue, exchange, route);
-
 	channel.publish(exchange, route, Buffer.from(message));
 
 	setTimeout(() => {
@@ -44,10 +43,6 @@ app.get('/produce', async ({ query }, res) => {
 	res.json({ success: true, message: 'Message queued.' });	
 });
 
-app.get('/status', (_, res) => {
-	return res.json({
-		start: Date.now()
-	});
-});
+app.get('/status', (_, res) => res.json({ start: Date.now() }));
 
 app.listen(PORT, async () => console.log(`Node server ready on ${PORT}`));
