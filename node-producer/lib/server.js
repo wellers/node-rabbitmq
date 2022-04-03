@@ -14,9 +14,7 @@ const queue = 'test_queue';
 const exchange = 'test_exchange';	
 const route = 'test_route';
 
-app.get('/produce', async ({ query }, res) => {	
-	const { message } = query;
-
+app.get('/produce', async ({ query: { message } }, res) => {
 	if (!message) {
 		res.json({ success: false, message: 'message is required.' });
 		return;
