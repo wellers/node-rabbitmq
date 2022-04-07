@@ -24,7 +24,7 @@ services:
     links:
       - rabbitmq
       - node-consumer    
-    command: bash -c "while ! curl -s http://192.168.50.101:4000/status > /dev/null; do echo waiting for rabbitmq; sleep 3; done; pm2-runtime pm2.yaml"
+    command: bash -c "while ! curl -s http://192.168.50.101:4000/status > /dev/null; do echo waiting for node-consumer; sleep 3; done; pm2-runtime pm2.yaml"
   rabbitmq:
     build: /sv/rabbitmq/
     ports:
