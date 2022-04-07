@@ -1,0 +1,32 @@
+services:    
+  node-consumer:
+    build: /sv/node-consumer/
+    ports:
+      - 4000:4000 
+    volumes:
+      - /sv/node-consumer/lib:/app/lib 
+    restart: on-failure
+    depends_on:
+      - rabbitmq      
+    links:
+      - rabbitmq
+    command: bash -c "while ! curl -s http://192.168.50.101:5672 > /dev/null; do echo waiting for rabbitmq; sleep 3; done; pm2-runtime pm2.yaml"
+  node-producer:
+    build: /sv/node-producer/
+    ports:
+      - 80:80
+    volumes:
+      - /sv/node-producer/lib:/app/lib 
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - node-consumer        
+    links:
+      - rabbitmq
+      - node-consumer    
+    command: bash -c "while ! curl -s http://192.168.50.101:4000/status > /dev/null; do echo waiting for rabbitmq; sleep 3; done; pm2-runtime pm2.yaml"
+  rabbitmq:
+    build: /sv/rabbitmq/
+    ports:
+      - 8080:15672
+      - 5672:5672    
