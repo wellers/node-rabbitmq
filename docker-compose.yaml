@@ -1,0 +1,30 @@
+services:
+  consumer:
+    build: ./consumer/
+    ports:
+      - 4000:80
+    volumes:
+      - ./consumer/lib:/app/lib
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+  producer:
+    build: ./producer/
+    ports:
+      - 80:80
+    volumes:
+      - ./producer/lib:/app/lib
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+      - consumer
+    links:
+      - rabbitmq
+      - consumer
+  rabbitmq:
+    build: ./rabbitmq/
+    ports:
+      - 8080:15672
+      - 5672:5672
