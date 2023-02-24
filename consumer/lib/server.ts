@@ -13,15 +13,7 @@ process.on("unhandledRejection", function (e) {
 
 const startDate = Date.now();
 
-async function boot() {
-	const app = express();
-
-	app.get("/status", (_, res) => res.json({ start: startDate }));
-
-	app.listen(80, async () => console.log(`🚀 Server ready`));
-
-	console.log("Waiting for messages...");
-
+async function boot() {	
 	const connection = await amqplib.connect({
 		protocol: "amqp",
 		hostname,
@@ -33,12 +25,18 @@ async function boot() {
 
 	const channel = await connection.createChannel();
 	await channel.assertQueue(queue, { durable: true });
-	await channel.consume(queue, async (message) => {
+	channel.consume(queue, async (message) => {
 		if (message !== null) {
 			console.log(`Message received: ${message.content.toString()}`);
 			channel.ack(message);
 		}
 	});
+
+	const app = express();
+
+	app.get("/status", (_, res) => res.json({ start: startDate }));
+	
+	app.listen(80, async () => console.log(`🚀 Server ready`));
 }
 
 boot().catch(function (e) {
