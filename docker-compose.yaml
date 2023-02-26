@@ -3,6 +3,13 @@ services:
     build: ./consumer/
     ports:
       - 4000:80
+    environment:
+      - CLOUDAMQP_HOST=192.168.50.101
+      - CLOUDAMQP_PORT=5672
+      - RABBITMQ_QUEUE_NAME=test_queue      
+      - RABBITMQ_USERNAME=test_user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VHOST=/test_host
     volumes:
       - ./consumer/lib:/app/lib
     restart: on-failure
@@ -14,6 +21,15 @@ services:
     build: ./producer/
     ports:
       - 80:80
+    environment:
+      - CLOUDAMQP_HOST=192.168.50.101
+      - CLOUDAMQP_PORT=5672
+      - RABBITMQ_QUEUE_NAME=test_queue
+      - RABBITMQ_EXCHANGE_NAME=test_exchange
+      - RABBITMQ_ROUTE_NAME=test_route
+      - RABBITMQ_USERNAME=test_user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VHOST=/test_host
     volumes:
       - ./producer/lib:/app/lib
     restart: on-failure

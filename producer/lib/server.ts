@@ -1,13 +1,16 @@
 import express from "express";
 import amqplib from "amqplib";
 
-const hostname = "192.168.50.101";
-const username = "test_user";
-const password = "password";
-const vhost = "/test_host";
-const queue = "test_queue";
-const exchange = "test_exchange";
-const route = "test_route";
+const {	
+	CLOUDAMQP_HOST,
+	CLOUDAMQP_PORT,
+	RABBITMQ_USERNAME,
+	RABBITMQ_PASSWORD,
+	RABBITMQ_VHOST,
+	RABBITMQ_QUEUE_NAME,
+	RABBITMQ_EXCHANGE_NAME,
+	RABBITMQ_ROUTE_NAME
+} = process.env;
 
 process.on("unhandledRejection", function (e) {
 	process.exit(1);
@@ -31,18 +34,18 @@ async function boot() {
 
 		const connection = await amqplib.connect({
 			protocol: "amqp",
-			hostname,
-			port: 5672,
-			username,
-			password,
-			vhost
+			hostname: CLOUDAMQP_HOST,
+			port: CLOUDAMQP_PORT as number | undefined,
+			username: RABBITMQ_USERNAME,
+			password: RABBITMQ_PASSWORD,
+			vhost: RABBITMQ_VHOST
 		}, "heartbeat=60");
 
 		const channel = await connection.createChannel();
-		await channel.assertExchange(exchange, "direct", { durable: true });
-		await channel.assertQueue(queue, { durable: true });
-		await channel.bindQueue(queue, exchange, route);
-		channel.publish(exchange, route, Buffer.from(message));
+		await channel.assertExchange(RABBITMQ_EXCHANGE_NAME, "direct", { durable: true });
+		await channel.assertQueue(RABBITMQ_QUEUE_NAME, { durable: true });
+		await channel.bindQueue(RABBITMQ_QUEUE_NAME, RABBITMQ_EXCHANGE_NAME, RABBITMQ_ROUTE_NAME);
+		channel.publish(RABBITMQ_EXCHANGE_NAME, RABBITMQ_ROUTE_NAME, Buffer.from(message));
 
 		setTimeout(() => {
 			channel.close();
